@@ -2,7 +2,11 @@ import { ArrowDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroBooks from "@/assets/hero-books.jpg";
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onShareClick: () => void;
+}
+
+const HeroSection = ({ onShareClick }: HeroSectionProps) => {
   return (
     <section className="relative overflow-hidden bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -23,7 +27,7 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="px-8 text-base">
+              <Button size="lg" className="px-8 text-base" onClick={onShareClick}>
                 Share Your Books
               </Button>
               <Button size="lg" variant="outline" className="gap-2 px-8 text-base" asChild>

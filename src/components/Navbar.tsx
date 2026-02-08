@@ -1,7 +1,11 @@
 import { BookOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const Navbar = () => {
+interface NavbarProps {
+  onShareClick: () => void;
+}
+
+const Navbar = ({ onShareClick }: NavbarProps) => {
   return (
     <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -19,7 +23,7 @@ const Navbar = () => {
           </a>
         </div>
 
-        <Button size="sm" className="gap-1.5">
+        <Button size="sm" className="gap-1.5" onClick={onShareClick}>
           <Plus className="h-4 w-4" />
           Share a Book
         </Button>
