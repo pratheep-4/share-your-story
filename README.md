@@ -30,4 +30,3 @@ Users can upload book details and browse available books shared by the community
 
 ---
 
-## 📂 Project Structure
