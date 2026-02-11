@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { ArrowDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import heroBooks from "@/assets/hero-books.jpg";
 
 interface HeroSectionProps {
@@ -7,6 +9,18 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ onShareClick }: HeroSectionProps) => {
+  const [bookCount, setBookCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("books")
+        .select("*", { count: "exact", head: true });
+      if (count !== null) setBookCount(count);
+    };
+    fetchCount();
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -50,7 +64,7 @@ const HeroSection = ({ onShareClick }: HeroSectionProps) => {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground">
-                <span className="font-bold text-foreground">500+</span> books shared
+                <span className="font-bold text-foreground">{bookCount}</span> books shared
               </p>
             </div>
           </div>
