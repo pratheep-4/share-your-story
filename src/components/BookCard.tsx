@@ -1,7 +1,12 @@
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface BookCardProps {
+  id: string;
   title: string;
   author: string;
   subject: string;
@@ -9,6 +14,7 @@ interface BookCardProps {
   condition: "Like New" | "Good" | "Fair";
   image: string;
   claimed?: boolean;
+  onClaimed?: () => void;
 }
 
 const conditionStyles: Record<string, string> = {
@@ -17,7 +23,27 @@ const conditionStyles: Record<string, string> = {
   Fair: "bg-condition-fair/15 text-condition-fair",
 };
 
-const BookCard = ({ title, author, subject, location, condition, image, claimed }: BookCardProps) => {
+const BookCard = ({ id, title, author, subject, location, condition, image, claimed, onClaimed }: BookCardProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleClaim = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    const { error } = await supabase
+      .from("books")
+      .update({ claimed: true, claimed_by: user.id })
+      .eq("id", id);
+    if (error) {
+      toast.error("Failed to claim book");
+    } else {
+      toast.success("Book claimed! 🎉");
+      onClaimed?.();
+    }
+  };
+
   return (
     <div className="group overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <div className="relative aspect-[2/3] overflow-hidden">
@@ -59,6 +85,7 @@ const BookCard = ({ title, author, subject, location, condition, image, claimed 
           className="mt-3 w-full"
           variant={claimed ? "secondary" : "default"}
           disabled={claimed}
+          onClick={handleClaim}
         >
           {claimed ? "Already Claimed" : "Claim This Book"}
         </Button>
