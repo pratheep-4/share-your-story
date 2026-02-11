@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          claimed: boolean
+          claimed_by: string | null
+          condition: string
+          created_at: string
+          id: string
+          image_url: string | null
+          location: string
+          subject: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          author: string
+          claimed?: boolean
+          claimed_by?: string | null
+          condition: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          location: string
+          subject: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          claimed?: boolean
+          claimed_by?: string | null
+          condition?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          subject?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

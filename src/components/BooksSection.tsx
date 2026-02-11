@@ -1,61 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import BookCard from "./BookCard";
 
-const books = [
-  {
-    title: "Calculus: Early Transcendentals",
-    author: "James Stewart",
-    subject: "Mathematics",
-    location: "Boston, MA",
-    condition: "Good" as const,
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
-  },
-  {
-    title: "Introduction to Psychology",
-    author: "James W. Kalat",
-    subject: "Psychology",
-    location: "New York, NY",
-    condition: "Like New" as const,
-    image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop",
-  },
-  {
-    title: "Organic Chemistry",
-    author: "David R. Klein",
-    subject: "Chemistry",
-    location: "Chicago, IL",
-    condition: "Fair" as const,
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=600&fit=crop",
-    claimed: true,
-  },
-  {
-    title: "Physics for Scientists",
-    author: "Raymond A. Serway",
-    subject: "Physics",
-    location: "San Francisco, CA",
-    condition: "Good" as const,
-    image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
-  },
-  {
-    title: "World History: Patterns",
-    author: "Roger B. Beck",
-    subject: "History",
-    location: "Austin, TX",
-    condition: "Like New" as const,
-    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=600&fit=crop",
-  },
-  {
-    title: "Biology: Life on Earth",
-    author: "Gerald Audesirk",
-    subject: "Biology",
-    location: "Seattle, WA",
-    condition: "Good" as const,
-    image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=600&fit=crop",
-  },
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  subject: string;
+  location: string;
+  condition: "Like New" | "Good" | "Fair";
+  image_url: string | null;
+  claimed: boolean;
+  user_id: string;
+}
 
 const BooksSection = () => {
   const [search, setSearch] = useState("");
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchBooks = async () => {
+    const { data } = await supabase
+      .from("books")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setBooks(data as Book[]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchBooks();
+
+    const channel = supabase
+      .channel("books-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "books" }, () => {
+        fetchBooks();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const filtered = books.filter(
     (b) =>
@@ -87,14 +72,33 @@ const BooksSection = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((book) => (
-            <BookCard key={book.title} {...book} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="py-12 text-center text-muted-foreground">Loading books...</p>
+        ) : (
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((book) => (
+                <BookCard
+                  key={book.id}
+                  id={book.id}
+                  title={book.title}
+                  author={book.author}
+                  subject={book.subject}
+                  location={book.location}
+                  condition={book.condition}
+                  image={book.image_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"}
+                  claimed={book.claimed}
+                  onClaimed={fetchBooks}
+                />
+              ))}
+            </div>
 
-        {filtered.length === 0 && (
-          <p className="py-12 text-center text-muted-foreground">No books found matching your search.</p>
+            {filtered.length === 0 && (
+              <p className="py-12 text-center text-muted-foreground">
+                {books.length === 0 ? "No books shared yet. Be the first!" : "No books found matching your search."}
+              </p>
+            )}
+          </>
         )}
       </div>
     </section>
