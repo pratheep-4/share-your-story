@@ -14,7 +14,7 @@ const HeroSection = ({ onShareClick }: HeroSectionProps) => {
   useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
-        .from("books")
+        .from("books_public" as any)
         .select("*", { count: "exact", head: true });
       if (count !== null) setBookCount(count);
     };

@@ -12,7 +12,6 @@ interface Book {
   condition: "Like New" | "Good" | "Fair";
   image_url: string | null;
   claimed: boolean;
-  user_id: string;
 }
 
 const BooksSection = () => {
@@ -22,10 +21,10 @@ const BooksSection = () => {
 
   const fetchBooks = async () => {
     const { data } = await supabase
-      .from("books")
+      .from("books_public" as any)
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setBooks(data as Book[]);
+    if (data) setBooks(data as unknown as Book[]);
     setLoading(false);
   };
 

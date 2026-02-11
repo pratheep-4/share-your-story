@@ -58,7 +58,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      books_public: {
+        Row: {
+          author: string | null
+          claimed: boolean | null
+          condition: string | null
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          location: string | null
+          subject: string | null
+          title: string | null
+        }
+        Insert: {
+          author?: string | null
+          claimed?: boolean | null
+          condition?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          location?: string | null
+          subject?: string | null
+          title?: string | null
+        }
+        Update: {
+          author?: string | null
+          claimed?: boolean | null
+          condition?: string | null
+          created_at?: string | null
+          id?: string | null
+          image_url?: string | null
+          location?: string | null
+          subject?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
